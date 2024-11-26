@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-file1_path = "C:\\Users\\NAJAM-LAB\\Downloads\\Insect_Caught.xlsx"
+file1_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Insect_Caught.xlsx"
 file2_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Temperature.xlsx"
 df_insect = pd.read_excel(file1_path)
 df_temp = pd.read_excel(file2_path)
