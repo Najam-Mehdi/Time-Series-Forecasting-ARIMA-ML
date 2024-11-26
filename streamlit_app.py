@@ -10,8 +10,8 @@ import seaborn as sns
 
 file1_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Insect_Caught.xlsx"
 file2_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Temperature.xlsx"
-df_insect = pd.read_excel(file1_path)
-df_temp = pd.read_excel(file2_path)
+df_insect = pd.read_excel(file1_path, engine='openpyxl')
+df_temp = pd.read_excel(file2_path, engine='openpyxl')
 
 df_insect = df_insect.drop_duplicates()
 df_insect = df_insect.dropna()
