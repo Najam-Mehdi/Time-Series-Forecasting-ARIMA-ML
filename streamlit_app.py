@@ -8,10 +8,12 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-file1_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Insect_Caught.xlsx"
-file2_path = "https://github.com/Najam-Mehdi/Insect-Prediction/blob/main/Temperature.xlsx"
-df_insect = pd.read_excel(file1_path, engine='openpyxl')
-df_temp = pd.read_excel(file2_path, engine='openpyxl')
+def load_data(filepath):
+    data = pd.read_csv(filepath)
+    return data
+  
+df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/Temperature.csv")
+df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/Insect_Caught.csv")
 
 df_insect = df_insect.drop_duplicates()
 df_insect = df_insect.dropna()
