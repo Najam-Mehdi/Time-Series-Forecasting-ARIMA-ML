@@ -12,8 +12,8 @@ def load_data(filepath):
     data = pd.read_csv(filepath)
     return data
   
-df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/Temperature.csv")
-df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/Insect_Caught.csv")
+df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
+df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
 
 df_insect = df_insect.drop_duplicates()
 df_insect = df_insect.dropna()
