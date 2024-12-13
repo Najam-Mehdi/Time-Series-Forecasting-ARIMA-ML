@@ -9,4 +9,4 @@ Project Web App Link: https://insect-prediction.streamlit.app/
 
 Course: Information Systems and Business Intelligence <br/>
 Professor: Flora Amato<br/>
-Assistant Professor: ALberto Moccardi<br/>
+Assistant Professor: Alberto Moccardi<br/>
