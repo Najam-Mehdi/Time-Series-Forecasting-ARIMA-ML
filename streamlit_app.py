@@ -216,9 +216,6 @@ elif page == "Modeling":
         
         st.subheader("Classification Model Evaluation")
         st.write(f'Accuracy: {accuracy}')
-        st.write(f'Precision: {precision}')
-        st.write(f'Recall: {recall}')
-        st.write(f'F1-Score: {f1}')
 
 elif page == "Prediction":
     st.title("Prediction")
@@ -255,7 +252,8 @@ elif page == "Prediction":
         rf_reg = RandomForestRegressor()
         rf_reg.fit(X_reg, y_reg)
         prediction = rf_reg.predict(input_scaled)
-        st.write(f"Predicted Number of Insects: {prediction[0]:.2f}")
+        rounded_prediction = np.round(prediction, 0)
+        st.write(f"Predicted Number of Insects: {rounded_prediction[0]:.1f}")
     
     elif model_type == "Classification":
         X_clf = df_features
