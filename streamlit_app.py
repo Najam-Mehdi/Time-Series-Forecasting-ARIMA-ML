@@ -63,6 +63,7 @@ df_cleaned = df_merged.dropna(subset=['Mean_Temperature', 'Temperature_Low', 'Te
                                       'Mean_Humidity', 'Prev_Num_Insects', 'Prev_Temperature',
                                       'Prev_Humidity', 'Temp_Delta', 'Rolling_Temperature', 
                                       'Rolling_Humidity', 'Number_of_Insects', 'New_Catches'])
+                                
 
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Choose a Page", ["EDA", "Modeling", "Prediction"])
@@ -169,14 +170,13 @@ if page == "EDA":
 
 elif page == "Modeling":
     st.title("Model Evaluation")
-    
     if st.button("Regression"):
         X_reg = df_cleaned[['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity',
                             'Prev_Num_Insects', 'Prev_Temperature', 'Prev_Humidity', 'Temp_Delta',
                             'Rolling_Temperature', 'Rolling_Humidity']]
         y_reg = df_cleaned['Number_of_Insects']
         
-        X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(X_reg, y_reg, test_size=0.2, random_state=42)
+        X_train_reg, X_test_reg, y_train_reg, y_test_reg = train_test_split(X_reg, y_reg, test_size=0.15, random_state=42)
         
         scaler = StandardScaler()
         X_train_reg_scaled = scaler.fit_transform(X_train_reg)
@@ -188,20 +188,20 @@ elif page == "Modeling":
         
         rmse = mean_squared_error(y_test_reg, y_pred_reg, squared=False)
         mae = mean_absolute_error(y_test_reg, y_pred_reg)
-        r2 = r2_score(y_test_reg, y_pred_reg)
         
         st.subheader("Regression Model Evaluation")
         st.write(f'RMSE: {rmse}')
         st.write(f'MAE: {mae}')
-        st.write(f'R2: {r2}')
     
     if st.button("Classification"):
         X_clf = df_cleaned[['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity',
                             'Prev_Num_Insects', 'Prev_Temperature', 'Prev_Humidity', 'Temp_Delta',
                             'Rolling_Temperature', 'Rolling_Humidity']]
         y_clf = (df_cleaned['New_Catches'] > 0).astype(int)
+
         
-        X_train_clf, X_test_clf, y_train_clf, y_test_clf = train_test_split(X_clf, y_clf, test_size=0.2, random_state=42)
+        X_train_clf, X_test_clf, y_train_clf, y_test_clf = train_test_split(X_clf, y_clf, test_size=0.15, random_state=42)
+
         
         scaler = StandardScaler()
         X_train_clf_scaled = scaler.fit_transform(X_train_clf)
@@ -264,5 +264,10 @@ elif page == "Prediction":
         rf_clf.fit(X_clf, y_clf)
         prediction = rf_clf.predict(input_scaled)
         prediction_prob = rf_clf.predict_proba(input_scaled)
-        st.write(f"Predicted Class: {prediction[0]} (0: No Catch, 1: Catch)")
-        st.write(f"Prediction Probability: {prediction_prob[0][1]:.2%}")
+        probabilities_df = pd.DataFrame(prediction_prob, columns=rf_clf.classes_)
+        st.write("Prediction Probabilities:")
+        st.dataframe(probabilities_df)
+        max_probability = probabilities_df.max(axis=1)
+        predicted_class = probabilities_df.idxmax(axis=1)
+        st.write(f"Predicted Class: {predicted_class[0]} (0: No Catch, 1: Catch)")
+        st.write(f"Maximum Probability: {max_probability[0]:.2%}")
