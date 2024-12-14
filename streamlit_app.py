@@ -6,29 +6,59 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, precision_recall_fscore_support
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 import seaborn as sns
+import plotly.express as px
+import plotly.graph_objects as go
+import urllib
+
 
 def load_data(filepath):
     data = pd.read_csv(filepath)
     return data
-  
-df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
-df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
 
-df_insect = df_insect.drop_duplicates()
-df_insect = df_insect.dropna()
-df_insect['Date_Time'] = pd.to_datetime(df_insect['Date_Time'], format='%d.%m.%Y %H:%M:%S')
+try:
+    df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
+    df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
+except urllib.error.URLError as e:
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+    df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
+    df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
 
-df_temp['Date_Time'] = pd.to_datetime(df_temp['Date_Time'], format='%d.%m.%Y %H:%M:%S')
+
+# Drop duplicates and null values
+def data_cleaning(data):
+    data = data.drop_duplicates()
+    data = data.dropna()
+    return data
+
+df_insect = data_cleaning(df_insect)
+df_temp = data_cleaning(df_temp)
+
+def date_parsing(df):
+    df['Date_Time'] = pd.to_datetime(df['Date_Time'], format='%d.%m.%Y %H:%M:%S')
+    df.drop_duplicates(subset='Date_Time', keep='first')
+    df['Time'] = df['Date_Time'].dt.time
+    return df
+
+df_insect = date_parsing(df_insect)
+df_temp = date_parsing(df_temp)
+# Issue with same date time value with different other values. so dropping the duplicate datetime and keeping the first values.
+
 df_merged = pd.merge(df_insect, df_temp, on='Date_Time', how='inner')
 
-df_merged['Day'] = df_merged['Date_Time'].dt.day
-df_merged['Month'] = df_merged['Date_Time'].dt.month
-df_merged['Year'] = df_merged['Date_Time'].dt.year
-df_merged['DayOfWeek'] = df_merged['Date_Time'].dt.weekday
-df_merged['Hour'] = df_merged['Date_Time'].dt.hour
-df_merged['Minute'] = df_merged['Date_Time'].dt.minute
-df_merged['WeekOfYear'] = df_merged['Date_Time'].dt.isocalendar().week
+def date_preprocessing(df):
+    df['Day'] = df['Date_Time'].dt.day
+    df['Month'] = df['Date_Time'].dt.month
+    df['Year'] = df['Date_Time'].dt.year
+    df['DayOfWeek'] = df['Date_Time'].dt.weekday
+    df['Hour'] = df['Date_Time'].dt.hour
+    df['Minute'] = df['Date_Time'].dt.minute
+    df['WeekOfYear'] = df['Date_Time'].dt.isocalendar().week
+    return df
+
+df_merged = date_preprocessing(df_merged)
 df_merged['Prev_Num_Insects'] = df_merged['Number_of_Insects'].shift(1)
 df_merged['Prev_Temperature'] = df_merged['Mean_Temperature'].shift(1)
 df_merged['Prev_Humidity'] = df_merged['Mean_Humidity'].shift(1)
@@ -44,60 +74,109 @@ df_cleaned = df_merged.dropna(subset=['Mean_Temperature', 'Temperature_Low', 'Te
 st.sidebar.title("Navigation")
 page = st.sidebar.selectbox("Choose a Page", ["EDA", "Modeling", "Prediction"])
 
+@st.cache_data
+def plot_correlation(df, cols: list[str]):
+    correlation_matrix = df[cols].corr()
+
+    # Create a Plotly heatmap
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=correlation_matrix.values,
+            x=correlation_matrix.columns,
+            y=correlation_matrix.columns,
+            colorscale="RdBu",
+            zmin=-1,
+            zmax=1,
+            colorbar=dict(title="Correlation"),
+        )
+    )
+
+    # Update layout
+    fig.update_layout(width=800, height=700)
+    return fig
+
+
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
     if st.button("No. of Insects"):
-     df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
-     df_daily = df_merged.groupby('Date').agg({
-        'Number_of_Insects': 'sum',
-        'New_Catches': 'sum',
-        'Mean_Temperature': 'mean',
-        'Mean_Humidity': 'mean'
-     }).reset_index()
+        df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
+        df_daily = df_merged.groupby('Date').agg({
+            'Number_of_Insects': 'sum',
+            'New_Catches': 'sum',
+            'Mean_Temperature': 'mean',
+            'Mean_Humidity': 'mean'
+        }).reset_index()
 
-     st.subheader("Number of Insects Caught - Daily Aggregation")
-     fig, ax = plt.subplots(figsize=(12, 6))
-     ax.plot(df_daily['Date'], df_daily['Number_of_Insects'], label='Number of Insects', color='tab:red')
-     ax.set_title("Number of Insects Caught - Daily Aggregation")
-     ax.set_xlabel("Date")
-     ax.set_ylabel("Number of Insects")
-     ax.tick_params(axis='x', rotation=45)
-     st.pyplot(fig)
+        # Create an interactive Plotly line chart
+        fig = px.line(
+            df_daily,
+            x='Date',
+            y='Number_of_Insects',
+            title="Number of Insects Caught - Daily Aggregation",
+            labels={'Number_of_Insects': 'Number of Insects', 'Date': 'Date'},
+            line_shape='spline',  # Smoother line
+            markers=True  # Add markers to data points
+        )
+
+        # Customize the layout for better visuals
+        fig.update_layout(
+            title={'x': 0.5},  # Center the title
+            xaxis_title="Date",
+            yaxis_title="Number of Insects",
+            xaxis=dict(showgrid=True, tickangle=45),
+            yaxis=dict(showgrid=True),
+            template="plotly_white"  # Use a clean theme
+        )
+
+        # Display the Plotly figure in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
 
     if st.button("No. of Catches"):
-     st.subheader("New Insect Catches - Daily Aggregation")
-     df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
-     df_daily = df_merged.groupby('Date').agg({
-        'Number_of_Insects': 'sum',
-        'New_Catches': 'sum',
-        'Mean_Temperature': 'mean',
-        'Mean_Humidity': 'mean'
-     }).reset_index()
-    
-     fig, ax = plt.subplots(figsize=(12, 6))
-     ax.plot(df_daily['Date'], df_daily['New_Catches'], label='New Catches', color='tab:blue')
-     ax.set_title("New Insect Catches - Daily Aggregation")
-     ax.set_xlabel("Date")
-     ax.set_ylabel("New Catches")
-     ax.tick_params(axis='x', rotation=45)
-     st.pyplot(fig)
-    
+        # Ensure the Date column is parsed correctly
+        df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
+
+        # Aggregate daily data
+        df_daily = df_merged.groupby('Date').agg({
+            'Number_of_Insects': 'sum',
+            'New_Catches': 'sum',
+            'Mean_Temperature': 'mean',
+            'Mean_Humidity': 'mean'
+        }).reset_index()
+
+        fig_new_catches = px.line(
+            df_daily,
+            x='Date',
+            y='New_Catches',
+            title="New Insect Catches - Daily Aggregation",
+            labels={'New_Catches': 'New Catches', 'Date': 'Date'},
+            line_shape='spline',
+            markers=True
+        )
+        fig_new_catches.update_layout(
+            title={'x': 0.5},
+            xaxis_title="Date",
+            yaxis_title="New Catches",
+            xaxis=dict(showgrid=True, tickangle=45),
+            yaxis=dict(showgrid=True),
+            template="plotly_white"
+        )
+        st.plotly_chart(fig_new_catches, use_container_width=True)
+        
     if st.button("Correlation"):
-     st.subheader("Correlation Matrix Between Pest Counts and Weather Variables")
-     correlation_matrix = df_merged[['Number_of_Insects', 'Mean_Temperature', 'Mean_Humidity']].corr()
-     fig, ax = plt.subplots(figsize=(8, 6))
-     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
-     ax.set_title("Correlation Matrix Between Pest Counts and Weather Variables")
-     st.pyplot(fig)
+        st.subheader("Correlation Matrix Between Pest Counts and Weather Variables")
+        cols = ["Number_of_Insects", "Mean_Temperature", "Mean_Humidity"]
+        fig = plot_correlation(df_merged, cols)
+        st.plotly_chart(fig)
+        
 
     if st.button("Distribution"):
-     st.subheader("Distribution of New Insect Catches")
-     fig, ax = plt.subplots(figsize=(10, 6))
-     sns.histplot(df_merged['New_Catches'], kde=True, bins=20, ax=ax)
-     ax.set_title("Distribution of New Insect Catches")
-     ax.set_xlabel("Number of New Catches")
-     ax.set_ylabel("Frequency")
-     st.pyplot(fig)
+        st.subheader("Distribution of New Insect Catches")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.histplot(df_merged['New_Catches'], kde=True, bins=20, ax=ax)
+        ax.set_xlabel("Number of New Catches")
+        ax.set_ylabel("Frequency")
+        st.pyplot(fig)
+
 
 elif page == "Modeling":
     st.title("Model Evaluation")
