@@ -37,28 +37,21 @@ df_insect = data_cleaning(df_insect)
 df_temp = data_cleaning(df_temp)
 
 def date_parsing(df):
-    df['Date_Time'] = pd.to_datetime(df['Date_Time'], format='%d.%m.%Y %H:%M:%S')
-    df.drop_duplicates(subset='Date_Time', keep='first')
-    df['Time'] = df['Date_Time'].dt.time
+    df['Date'] = pd.to_datetime(df['Date_Time'], format='%d.%m.%Y %H:%M:%S').dt.date
+    df.drop(columns=['Date_Time'], inplace=True)
     return df
 
 df_insect = date_parsing(df_insect)
 df_temp = date_parsing(df_temp)
+
+# Group by date and take the mean of the temperature values
+df_temp = df_temp.groupby('Date').mean().reset_index()
+df_insect = df_insect.groupby('Date').sum().reset_index()
 # Issue with same date time value with different other values. so dropping the duplicate datetime and keeping the first values.
 
-df_merged = pd.merge(df_insect, df_temp, on='Date_Time', how='inner')
+df_merged = pd.merge(df_insect, df_temp, on='Date', how='inner')
 
-def date_preprocessing(df):
-    df['Day'] = df['Date_Time'].dt.day
-    df['Month'] = df['Date_Time'].dt.month
-    df['Year'] = df['Date_Time'].dt.year
-    df['DayOfWeek'] = df['Date_Time'].dt.weekday
-    df['Hour'] = df['Date_Time'].dt.hour
-    df['Minute'] = df['Date_Time'].dt.minute
-    df['WeekOfYear'] = df['Date_Time'].dt.isocalendar().week
-    return df
 
-df_merged = date_preprocessing(df_merged)
 df_merged['Prev_Num_Insects'] = df_merged['Number_of_Insects'].shift(1)
 df_merged['Prev_Temperature'] = df_merged['Mean_Temperature'].shift(1)
 df_merged['Prev_Humidity'] = df_merged['Mean_Humidity'].shift(1)
@@ -99,7 +92,6 @@ def plot_correlation(df, cols: list[str]):
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
     if st.button("No. of Insects"):
-        df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
         df_daily = df_merged.groupby('Date').agg({
             'Number_of_Insects': 'sum',
             'New_Catches': 'sum',
@@ -132,9 +124,6 @@ if page == "EDA":
         st.plotly_chart(fig, use_container_width=True)
 
     if st.button("No. of Catches"):
-        # Ensure the Date column is parsed correctly
-        df_merged['Date'] = pd.to_datetime(df_merged[['Year', 'Month', 'Day']])
-
         # Aggregate daily data
         df_daily = df_merged.groupby('Date').agg({
             'Number_of_Insects': 'sum',
