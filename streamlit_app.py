@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import scipy.stats as stats
@@ -212,7 +212,6 @@ elif page == "Modeling":
         y_pred_clf = rf_clf.predict(X_test_clf_scaled)
         
         accuracy = accuracy_score(y_test_clf, y_pred_clf)
-        precision, recall, f1, _ = precision_recall_fscore_support(y_test_clf, y_pred_clf, average='binary')
         
         st.subheader("Classification Model Evaluation")
         st.write(f'Accuracy: {accuracy}')
