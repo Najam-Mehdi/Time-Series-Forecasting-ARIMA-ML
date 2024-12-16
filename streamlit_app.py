@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import mean_squared_error, mean_absolute_error, accuracy_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import scipy.stats as stats
@@ -37,17 +37,24 @@ df_insect = data_cleaning(df_insect)
 df_temp = data_cleaning(df_temp)
 
 def date_parsing(df):
-    df['Date'] = pd.to_datetime(df['Date_Time'], format='%d.%m.%Y %H:%M:%S').dt.date
-    df.drop(columns=['Date_Time'], inplace=True)
+    df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y')
     return df
 
 df_insect = date_parsing(df_insect)
 df_temp = date_parsing(df_temp)
 
 # Group by date and take the mean of the temperature values
+temp_cols = ['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity']
+
+def convert_float(df, cols):
+    for col in temp_cols:
+        df[col] = df[col].str.replace(',', '.').astype(float)
+    return df
+
+
+df_temp = convert_float(df_temp, temp_cols)
 df_temp = df_temp.groupby('Date').mean().reset_index()
 df_insect = df_insect.groupby('Date').sum().reset_index()
-# Issue with same date time value with different other values. so dropping the duplicate datetime and keeping the first values.
 
 df_merged = pd.merge(df_insect, df_temp, on='Date', how='inner')
 
@@ -66,7 +73,9 @@ df_cleaned = df_merged.dropna(subset=['Mean_Temperature', 'Temperature_Low', 'Te
                                 
 
 st.sidebar.title("Navigation")
-page = st.sidebar.selectbox("Choose a Page", ["EDA", "Modeling", "Prediction"])
+menu = ["About Us","Visualization","Correlation", "Hypothesis Testing", "Model Evaluation", "Inference"]
+page = st.sidebar.selectbox("Choose an option", menu)
+models = ["Regression", "Classification"]
 
 @st.cache_data
 def plot_correlation(df, cols: list[str]):
@@ -78,7 +87,7 @@ def plot_correlation(df, cols: list[str]):
             z=correlation_matrix.values,
             x=correlation_matrix.columns,
             y=correlation_matrix.columns,
-            colorscale="RdBu",
+            colorscale='Greys',
             zmin=-1,
             zmax=1,
             colorbar=dict(title="Correlation"),
@@ -87,11 +96,20 @@ def plot_correlation(df, cols: list[str]):
 
     # Update layout
     fig.update_layout(width=800, height=700)
-    return fig
+    return fig, correlation_matrix
 
+if page == menu[0]:
+    st.title(menu[0])
+    st.subheader("Raza Mehar")
+    st.write("Matricola Number: D03000023")
+    st.subheader("Syed Najam Mehdi")
+    st.write("Matricola Number: D03000017")
+    st.subheader("Pujan Thapa")
+    st.write("Matricola Number: D03000056")
 
-if page == "EDA":
-    st.title("Exploratory Data Analysis (EDA)")
+    
+if page == menu[1]:
+    st.title(menu[1])
     if st.button("No. of Insects"):
         df_daily = df_merged.groupby('Date').agg({
             'Number_of_Insects': 'sum',
@@ -111,7 +129,6 @@ if page == "EDA":
             markers=True  # Add markers to data points
         )
 
-        # Customize the layout for better visuals
         fig.update_layout(
             title={'x': 0.5},  # Center the title
             xaxis_title="Date",
@@ -121,8 +138,8 @@ if page == "EDA":
             template="plotly_white"  # Use a clean theme
         )
 
-        # Display the Plotly figure in Streamlit
         st.plotly_chart(fig, use_container_width=True)
+        st.write("Most of the insects have been caught in the month of August.")
 
     if st.button("No. of Catches"):
         # Aggregate daily data
@@ -151,26 +168,82 @@ if page == "EDA":
             template="plotly_white"
         )
         st.plotly_chart(fig_new_catches, use_container_width=True)
-        
-    if st.button("Correlation"):
-        st.subheader("Correlation Matrix Between Pest Counts and Weather Variables")
-        cols = ["Number_of_Insects", "Mean_Temperature", "Mean_Humidity"]
-        fig = plot_correlation(df_merged, cols)
-        st.plotly_chart(fig)
-        
+        st.write("Month seems to have no connection with the number of new catches.")
 
     if st.button("Distribution"):
         st.subheader("Distribution of New Insect Catches")
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.histplot(df_merged['New_Catches'], kde=True, bins=20, ax=ax)
-        ax.set_xlabel("Number of New Catches")
-        ax.set_ylabel("Frequency")
-        st.pyplot(fig)
+        # Create the Plotly histogram
+        fig = px.histogram(
+            df_merged, 
+            x='New_Catches', 
+            nbins=20,  # Number of bins
+            opacity=0.7
+        )
+        fig.update_traces(histnorm='density')  # Normalize histogram to show density
+        fig.update_layout(
+            xaxis_title="Number of New Catches",
+            yaxis_title="Frequency",
+            template="plotly_white"  # Optional: set a Plotly theme
+        )
 
+        # Render the plot in Streamlit
+        st.plotly_chart(fig)
+        st.write("The distribution of new insect catches is right-skewed.")
 
-elif page == "Modeling":
-    st.title("Model Evaluation")
-    if st.button("Regression"):
+elif page == menu[2]:
+    st.title("Correlation Analysis")
+    st.subheader("Correlation Matrix Between Pest Counts and Weather Variables")
+    cols = ["Number_of_Insects", "Mean_Temperature", "Mean_Humidity"]
+    fig, corr_mat = plot_correlation(df_merged, cols)
+    st.plotly_chart(fig)
+    st.write("Correlation Matrix:")
+    st.dataframe(corr_mat)
+    st.write("There appears to be a positive albeit weak correlation between the number of insects and the mean humidity. However, there is no significant linear relationship between Number of Insects and Mean Temperature.")
+
+elif page == menu[3]:
+    st.title(menu[3])
+
+    variable = st.selectbox("Choose Variable for Hypothesis Testing", ["Temperature", "Humidity"])
+
+    if variable == "Temperature":
+        st.write("### Hypothesis: Temperature significantly affects the number of insects caught.")
+        df_cleaned['Temp_Category'] = pd.cut(df_cleaned['Mean_Temperature'], bins=3, labels=['Low', 'Medium', 'High'])
+
+        low_temp = df_cleaned[df_cleaned['Temp_Category'] == 'Low']['Number_of_Insects']
+        high_temp = df_cleaned[df_cleaned['Temp_Category'] == 'High']['Number_of_Insects']
+
+        t_stat, p_val = stats.ttest_ind(low_temp, high_temp, equal_var=False)
+
+        st.write("### Results")
+        st.write(f"T-Statistic: {t_stat:.2f}")
+        st.write(f"P-Value: {p_val:.4f}")
+
+        if p_val < 0.05:
+            st.write("The result is statistically significant. Temperature has a significant effect on the number of insects caught.")
+        else:
+            st.write("The result is not statistically significant. Temperature does not have a significant effect on the number of insects caught.")
+
+    elif variable == "Humidity":
+        st.write("### Hypothesis: Humidity significantly affects the number of insects caught.")
+        df_cleaned['Humidity_Category'] = pd.cut(df_cleaned['Mean_Humidity'], bins=3, labels=['Low', 'Medium', 'High'])
+
+        low_humidity = df_cleaned[df_cleaned['Humidity_Category'] == 'Low']['Number_of_Insects']
+        high_humidity = df_cleaned[df_cleaned['Humidity_Category'] == 'High']['Number_of_Insects']
+
+        t_stat, p_val = stats.ttest_ind(low_humidity, high_humidity, equal_var=False)
+
+        st.write("### Results")
+        st.write(f"T-Statistic: {t_stat:.2f}")
+        st.write(f"P-Value: {p_val:.4f}")
+
+        if p_val < 0.05:
+            st.write("The result is statistically significant. Humidity has a significant effect on the number of insects caught.")
+        else:
+            st.write("The result is not statistically significant. Humidity does not have a significant effect on the number of insects caught.")
+
+elif page == menu[4]:
+    st.title(menu[4])
+    if st.button(models[0]):
         X_reg = df_cleaned[['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity',
                             'Prev_Num_Insects', 'Prev_Temperature', 'Prev_Humidity', 'Temp_Delta',
                             'Rolling_Temperature', 'Rolling_Humidity']]
@@ -193,7 +266,7 @@ elif page == "Modeling":
         st.write(f'RMSE: {rmse}')
         st.write(f'MAE: {mae}')
     
-    if st.button("Classification"):
+    if st.button(models[1]):
         X_clf = df_cleaned[['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity',
                             'Prev_Num_Insects', 'Prev_Temperature', 'Prev_Humidity', 'Temp_Delta',
                             'Rolling_Temperature', 'Rolling_Humidity']]
@@ -212,28 +285,25 @@ elif page == "Modeling":
         y_pred_clf = rf_clf.predict(X_test_clf_scaled)
         
         accuracy = accuracy_score(y_test_clf, y_pred_clf)
-        precision, recall, f1, _ = precision_recall_fscore_support(y_test_clf, y_pred_clf, average='binary')
         
         st.subheader("Classification Model Evaluation")
         st.write(f'Accuracy: {accuracy}')
 
-elif page == "Prediction":
-    st.title("Prediction")
-    
-    model_type = st.radio("Select Model Type", ["Regression", "Classification"])
-    
+elif page == menu[5]:
+    st.title(menu[5])
+    model_type = st.radio("Select Model Type", models)
     st.subheader("Input Features")
-    mean_temp = st.number_input("Mean Temperature")
-    temp_low = st.number_input("Temperature Low")
-    temp_high = st.number_input("Temperature High")
-    mean_humidity = st.number_input("Mean Humidity")
-    prev_num_insects = st.number_input("Previous Number of Insects", value=0)
-    prev_temp = st.number_input("Previous Temperature")
-    prev_humidity = st.number_input("Previous Humidity")
+    mean_temp = st.slider("Select a Mean Temperature (°C)", min_value=-10, max_value=100, value=25)
+    temp_low = st.slider("Select a Low Temperature (°C)", min_value=-10, max_value=100, value=25)
+    temp_high = st.slider("Select a High Temperature (°C)", min_value=-10, max_value=100, value=25)
+    mean_humidity = st.slider("Select a Mean Humidity (%)", min_value=0, max_value=100, value=25)
+    prev_temp = st.slider("Select a Previous Temperature (°C)", min_value=-10, max_value=100, value=25)
+    prev_humidity = st.slider("Select a Previous Humidity (%)", min_value=0, max_value=100, value=25)
+    rolling_temp = st.slider("Select a Rolling Mean Temperature", min_value=-10, max_value=100, value=25)
+    rolling_humidity = st.slider("Select a Rolling Mean Humidity (%)", min_value=0, max_value=100, value=25)
     temp_delta = temp_high - temp_low
-    rolling_temp = st.number_input("Rolling Mean Temperature")
-    rolling_humidity = st.number_input("Rolling Mean Humidity")
-    
+    prev_num_insects = st.number_input("Previous Number of Insects", value=0)
+
     input_features = np.array([[mean_temp, temp_low, temp_high, mean_humidity,
                                 prev_num_insects, prev_temp, prev_humidity,
                                 temp_delta, rolling_temp, rolling_humidity]])
@@ -246,7 +316,7 @@ elif page == "Prediction":
     scaler.fit(df_features)
     input_scaled = scaler.transform(input_features)
     
-    if model_type == "Regression":
+    if model_type == models[0]:
         X_reg = df_features
         y_reg = df_cleaned['Number_of_Insects']
         rf_reg = RandomForestRegressor()
@@ -255,7 +325,7 @@ elif page == "Prediction":
         rounded_prediction = np.round(prediction, 0)
         st.write(f"Predicted Number of Insects: {rounded_prediction[0]:.1f}")
     
-    elif model_type == "Classification":
+    elif model_type == models[1]:
         X_clf = df_features
         y_clf = (df_cleaned['New_Catches'] > 0).astype(int)
         rf_clf = RandomForestClassifier()
@@ -269,3 +339,5 @@ elif page == "Prediction":
         predicted_class = probabilities_df.idxmax(axis=1)
         st.write(f"Predicted Class: {predicted_class[0]} (0: No Catch, 1: Catch)")
         st.write(f"Maximum Probability: {max_probability[0]:.2%}")
+
+
