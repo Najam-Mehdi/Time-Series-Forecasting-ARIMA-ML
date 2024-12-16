@@ -12,20 +12,19 @@ import plotly.express as px
 import plotly.graph_objects as go
 import urllib
 
-
+root_path = "https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/data/"
 def load_data(filepath):
     data = pd.read_csv(filepath)
     return data
 
 try:
-    df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
-    df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
+    df_temp = load_data(root_path + "Temperature.csv")
+    df_insect = load_data(root_path + "Insect_Caught.csv")
 except urllib.error.URLError as e:
     import ssl
     ssl._create_default_https_context = ssl._create_unverified_context
-    df_temp = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Temperature.csv")
-    df_insect = load_data("https://raw.githubusercontent.com/Najam-Mehdi/Insect-Prediction/refs/heads/main/docs/Insect_Caught.csv")
-
+    df_temp = load_data(root_path + "Temperature.csv")
+    df_insect = load_data(root_path + "Insect_Caught.csv")
 
 # Drop duplicates and null values
 def data_cleaning(data):
