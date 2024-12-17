@@ -169,7 +169,7 @@ if page == menu[1]:
     st.write("""
         This project provides the following features:
         - **Interactive Visualizations**: Explore trends in insect catches and weather data.
-        - **Model Evaluation**: Evaluate model performance using metrics like RMSE, MAE, R², and accuracy.
+        - **Model Evaluation**: Evaluate model performance using metrics like RMSE, MAE and accuracy.
         - **Prediction Interface**: Input weather data to receive predictions for insect counts or catch likelihood.
         - **Data Insights**: Visual and statistical analysis of the relationship between weather and insect catches.
     """)
