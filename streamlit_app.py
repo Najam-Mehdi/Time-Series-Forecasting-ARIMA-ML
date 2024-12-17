@@ -72,7 +72,7 @@ df_cleaned = df_merged.dropna(subset=['Mean_Temperature', 'Temperature_Low', 'Te
                                 
 
 st.sidebar.title("Navigation")
-menu = ["About Us","Visualization","Correlation", "Hypothesis Testing", "Model Evaluation", "Inference"]
+menu = ["About Us","About Project", "Visualization","Correlation", "Hypothesis Testing", "Model Evaluation", "Inference"]
 page = st.sidebar.selectbox("Choose an option", menu)
 models = ["Regression", "Classification"]
 
@@ -106,9 +106,76 @@ if page == menu[0]:
     st.subheader("Pujan Thapa")
     st.write("Matricola Number: D03000056")
 
-    
 if page == menu[1]:
-    st.title(menu[1])
+    st.title("About the Project")
+
+    # Introduction
+    st.header("Introduction")
+    st.write("""
+        This project focuses on leveraging weather data to analyze and predict insect catches. 
+        It offers insights into the relationship between weather conditions and insect behavior, 
+        while providing users with predictive capabilities through regression and classification models.
+    """)
+
+    # Project Objectives
+    st.header("Project Objectives")
+    st.write("""
+        The main objectives of the project are:
+        - **Predict Insect Count**: Use weather variables to forecast the number of insects caught.
+        - **Classify Catch Likelihood**: Determine whether new insects will be caught (binary classification).
+        - **Explore Data**: Identify patterns between insect catches and weather conditions.
+        - **Provide Predictions**: Allow users to input weather data and receive predictions.
+    """)
+
+    # Project Structure
+    st.header("Project Structure")
+    
+    # Exploratory Data Analysis
+    st.subheader("1. Exploratory Data Analysis")
+    st.write("""
+        Visualizations for exploring the relationship between insect catches and weather data:
+        - **Insect Counts**: Time series of daily insect catches.
+        - **New Catches**: Time series of new insect catches.
+        - **Correlation Matrix**: Displays the relationship between insect counts and weather variables.
+        - **Catch Distribution**: Distribution of new insect catches.
+    """)
+    
+    # Modeling
+    st.subheader("2. Modeling")
+    st.write("""
+        Two types of models are used:
+        - **Regression Model**: Predicts the number of insects based on weather-related features.
+        - **Classification Model**: Predicts if a new insect catch will occur (binary classification).
+        
+        Models are evaluated using:
+        - Regression metrics: RMSE, MAE, R².
+        - Classification metrics: Accuracy.
+    """)
+    
+    # Prediction
+    st.subheader("3. Prediction")
+    st.write("""
+        Users can input weather data to:
+        - Predict the number of insects (Regression).
+        - Predict the likelihood of a new catch (Classification).
+        
+        Outputs include:
+        - **Regression**: Predicted number of insects.
+        - **Classification**: Predicted class (0 for no catch, 1 for catch) and prediction probability.
+    """)
+
+    # Key Features
+    st.header("Key Features")
+    st.write("""
+        This project provides the following features:
+        - **Interactive Visualizations**: Explore trends in insect catches and weather data.
+        - **Model Evaluation**: Evaluate model performance using metrics like RMSE, MAE, R², and accuracy.
+        - **Prediction Interface**: Input weather data to receive predictions for insect counts or catch likelihood.
+        - **Data Insights**: Visual and statistical analysis of the relationship between weather and insect catches.
+    """)
+    
+if page == menu[2]:
+    st.title(menu[2])
     if st.button("No. of Insects"):
         df_daily = df_merged.groupby('Date').agg({
             'Number_of_Insects': 'sum',
@@ -189,7 +256,7 @@ if page == menu[1]:
         st.plotly_chart(fig)
         st.write("The distribution of new insect catches is right-skewed.")
 
-elif page == menu[2]:
+elif page == menu[3]:
     st.title("Correlation Analysis")
     st.subheader("Correlation Matrix Between Pest Counts and Weather Variables")
     cols = ["Number_of_Insects", "Mean_Temperature", "Mean_Humidity"]
@@ -199,8 +266,8 @@ elif page == menu[2]:
     st.dataframe(corr_mat)
     st.write("There appears to be a positive albeit weak correlation between the number of insects and the mean humidity. However, there is no significant linear relationship between Number of Insects and Mean Temperature.")
 
-elif page == menu[3]:
-    st.title(menu[3])
+elif page == menu[4]:
+    st.title(menu[4])
 
     variable = st.selectbox("Choose Variable for Hypothesis Testing", ["Temperature", "Humidity"])
 
@@ -240,8 +307,8 @@ elif page == menu[3]:
         else:
             st.write("The result is not statistically significant. Humidity does not have a significant effect on the number of insects caught.")
 
-elif page == menu[4]:
-    st.title(menu[4])
+elif page == menu[5]:
+    st.title(menu[5])
     if st.button(models[0]):
         X_reg = df_cleaned[['Mean_Temperature', 'Temperature_Low', 'Temperature_High', 'Mean_Humidity',
                             'Prev_Num_Insects', 'Prev_Temperature', 'Prev_Humidity', 'Temp_Delta',
@@ -288,8 +355,8 @@ elif page == menu[4]:
         st.subheader("Classification Model Evaluation")
         st.write(f'Accuracy: {accuracy}')
 
-elif page == menu[5]:
-    st.title(menu[5])
+elif page == menu[6]:
+    st.title(menu[6])
     model_type = st.radio("Select Model Type", models)
     st.subheader("Input Features")
     mean_temp = st.slider("Select a Mean Temperature (°C)", min_value=-10, max_value=100, value=25)
