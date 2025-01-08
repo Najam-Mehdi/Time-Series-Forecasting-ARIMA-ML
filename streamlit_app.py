@@ -50,19 +50,8 @@ elif page == "Page 1: Data Load & Review":
 
     # Button examples
     if st.button("Load Data"):
-        root_path = "https://github.com/Najam-Mehdi/Time-Series-Forecasting-ARIMA-ML/tree/main/data/"
-        def load_data(filepath):
-            data = pd.read_csv(filepath)
-            return data
-        try:
-            df_temp = load_data(root_path + "temperature.csv")
-            df_ins = load_data(root_path + "insects_Caught.csv")
-        except urllib.error.URLError as e:
-            import ssl
-            ssl._create_default_https_context = ssl._create_unverified_context
-            df_temp = load_data(root_path + "temperature.csv")
-            df_ins = load_data(root_path + "insects_Caught.csv")
-        
+        df_ins = pd.read_csv('insects.csv')
+        df_temp = pd.read_csv('temperature.csv')
         # Store data in session state
         st.session_state['df_ins'] = df_ins
         st.session_state['df_temp'] = df_temp
