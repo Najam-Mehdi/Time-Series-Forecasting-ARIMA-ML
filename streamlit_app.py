@@ -17,6 +17,8 @@ from scipy.stats import f_oneway
 import warnings
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from prophet import Prophet
+import urllib.request
+import ssl
 warnings.filterwarnings("ignore")
 
 # Page configuration
