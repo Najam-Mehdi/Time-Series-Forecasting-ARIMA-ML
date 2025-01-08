@@ -50,8 +50,8 @@ elif page == "Page 1: Data Load & Review":
 
     # Button examples
     if st.button("Load Data"):
-        df_ins = pd.read_csv('insects.csv')
-        df_temp = pd.read_csv('temperature.csv')
+        df_ins = pd.read_csv('https://raw.githubusercontent.com/Najam-Mehdi/Time-Series-Forecasting-ARIMA-ML/refs/heads/main/data/insects.csv')
+        df_temp = pd.read_csv('https://raw.githubusercontent.com/Najam-Mehdi/Time-Series-Forecasting-ARIMA-ML/refs/heads/main/data/temperature.csv')
         # Store data in session state
         st.session_state['df_ins'] = df_ins
         st.session_state['df_temp'] = df_temp
