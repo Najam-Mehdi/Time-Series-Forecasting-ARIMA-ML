@@ -63,7 +63,7 @@ elif page == "Page 1: Data Load & Review":
             import ssl
             ssl._create_default_https_context = ssl._create_unverified_context
             df_temp = load_data(root_path + "temperature.csv")
-            df_ins = load_data(root_path + "insects_Caught.csv")
+            df_ins = load_data(root_path + "insects.csv")
         
         # Store data in session state
         st.session_state['df_ins'] = df_ins
