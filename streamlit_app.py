@@ -56,12 +56,12 @@ elif page == "Page 1: Data Load & Review":
             return data
         try:
             df_temp = load_data(root_path + "temperature.csv")
-            df_ins = load_data(root_path + "insect_Caught.csv")
+            df_ins = load_data(root_path + "insects_Caught.csv")
         except urllib.error.URLError as e:
             import ssl
             ssl._create_default_https_context = ssl._create_unverified_context
             df_temp = load_data(root_path + "temperature.csv")
-            df_ins = load_data(root_path + "insect_Caught.csv")
+            df_ins = load_data(root_path + "insects_Caught.csv")
         
         # Store data in session state
         st.session_state['df_ins'] = df_ins
