@@ -50,7 +50,7 @@ elif page == "Page 1: Data Load & Review":
 
     # Button examples
     if st.button("Load Data"):
-        root_path = "https://raw.githubusercontent.com/Najam-Mehdi/Time-Series-Forecasting-ARIMA-ML/tree/main/data/"
+        root_path = "https://github.com/Najam-Mehdi/Time-Series-Forecasting-ARIMA-ML/tree/main/data/"
         def load_data(filepath):
             data = pd.read_csv(filepath)
             return data
