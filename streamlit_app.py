@@ -31,14 +31,14 @@ st.set_page_config(
 
 # Sidebar for page navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Page 1: Data Load & Review", "Page 2: Data Preprocessing", "Page 3: Descriptive Statistics", "Page 4: Statistical Analysis of Variables", "Page 5: Data Visualization", "Page 6: Fixed Partitioning", "Page 7: Statistical Forecast Methods", "Page 8: ARIMA", "Page 9: SARIMA", "Page 10: Machine Learning Models", "Page 11: Model Comparison", "Page 12: Forecasting with the Best Model"])
+page = st.sidebar.radio("Go to", ["Home", "Data Load & Review", "Data Preprocessing", "Descriptive Statistics", "Statistical Analysis of Variables", "Data Visualization", "Fixed Partitioning", "Statistical Forecast Methods", "ARIMA", "SARIMA", "Machine Learning Models", "Model Comparison", "Forecasting with the Best Model"])
 
 # Home Page
 if page == "Home":
     st.title("📚 Welcome to the Information Systems & Business Intelligence - Streamlit App!")
-    st.write("""
-    This Project Will Tell You That Why You Are Ugly.
-    """)
+    st.write("\n"
+             "    Insects Catching Prediction By Analysing Temperature and Humidity.\n"
+             "    ")
     st.image(
         "https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-lighttext.png",
         caption="Streamlit Logo",
@@ -46,7 +46,7 @@ if page == "Home":
     )
 
 # Page 1: Buttons
-elif page == "Page 1: Data Load & Review":
+elif page == "Data Load & Review":
     st.title("🎯 Data Load & Review")
     st.write("This page loads and reviews the initial data.")
 
@@ -81,7 +81,7 @@ elif page == "Page 1: Data Load & Review":
         st.warning("Please load the data first.")
 
 # Page 2: Info
-elif page == "Page 2: Data Preprocessing":
+elif page == "Data Preprocessing":
     st.title("💡 Data Preprocessing")
     st.write("This page performs preprocessing.")
 
@@ -120,7 +120,7 @@ elif page == "Page 2: Data Preprocessing":
     else:
         st.warning("Please load the data first on the Data Load & Review page.")
 
-elif page == "Page 3: Descriptive Statistics":
+elif page == "Descriptive Statistics":
     st.title("Descriptive Statistics")
     if "df_grouped" in st.session_state:
         if st.button("Describe Data"):
@@ -128,7 +128,7 @@ elif page == "Page 3: Descriptive Statistics":
     else:
         st.warning("Please preprocess the data first.")
 
-elif page == "Page 4: Statistical Analysis of Variables":
+elif page == "Statistical Analysis of Variables":
     st.title("Statistical Analysis of Variables")
 
     if "df_grouped" in st.session_state:
@@ -235,7 +235,7 @@ elif page == "Page 4: Statistical Analysis of Variables":
     else:
         st.warning("Please preprocess the data first.")
 
-elif page == "Page 5: Data Visualization":
+elif page == "Data Visualization":
     st.title("Data Visualization")
     st.write("Components of the Time-Series")
 
@@ -262,7 +262,7 @@ elif page == "Page 5: Data Visualization":
         st.warning("Please preprocess the data first.")
 
 
-elif page == "Page 6: Fixed Partitioning":
+elif page == "Fixed Partitioning":
     st.title("📊 Fixed Partitioning")
     st.write("This page demonstrates fixed partitioning of the data into training and validation datasets.")
 
@@ -297,11 +297,8 @@ elif page == "Page 6: Fixed Partitioning":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Page 7: Statistical Forecast Methods":
+elif page == "Statistical Forecast Methods":
     st.title("📈 Statistical Forecast Methods")
-    st.write("Naive Forecast: A simple, baseline method for making predictions. It assumes that the future will look like the past.")
-    st.write("Moving Average Forecast: A forecasting technique that predicts future values by averaging a fixed number of past observations to smooth out short-term fluctuations and highlight longer-term trends.")
-    st.write("Differenced Moving Average Forecast: A time series transformation technique that subtracts the current observation from a previous one to achieve stationarity by removing trends and seasonality.")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
@@ -319,6 +316,8 @@ elif page == "Page 7: Statistical Forecast Methods":
             naive_forecast = st.session_state["naive_forecast"]
             nf_mae = st.session_state["nf_mae"]
 
+            st.write(
+                "Naive Forecast: A simple, baseline method for making predictions. It assumes that the future will look like the past.")
             time_step = 8
             st.write(f"Ground truth at time step {time_step}: {X_val['New_Catches'].iloc[time_step]}")
             st.write(f"Prediction at time step {time_step + 1}: {naive_forecast.iloc[time_step + 1]}")
@@ -334,6 +333,9 @@ elif page == "Page 7: Statistical Forecast Methods":
 
         # Moving Average Forecast
         if st.button("Show Moving Average Forecast"):
+            st.write(
+                "Moving Average Forecast: A forecasting technique that predicts future values by averaging a fixed number of past observations to smooth out short-term fluctuations and highlight longer-term trends.")
+
             window_size = 3
             moving_avg = df_grouped['New_Catches'].rolling(window=window_size).mean()
             moving_avg = moving_avg.iloc[n_train_samples:]
@@ -350,8 +352,10 @@ elif page == "Page 7: Statistical Forecast Methods":
             st.pyplot(fig)
 
         # Differenced Moving Average Forecast
-        # Differenced Moving Average Forecast
         if st.button("Show Differenced Moving Average Forecast"):
+            st.write(
+                "Differenced Moving Average Forecast: A time series transformation technique that subtracts the current observation from a previous one to achieve stationarity by removing trends and seasonality.")
+
             periods = 2
             diff_series = df_grouped['New_Catches'].diff(periods=periods).iloc[n_train_samples:]
 
@@ -383,7 +387,7 @@ elif page == "Page 7: Statistical Forecast Methods":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Page 8: ARIMA":
+elif page == "ARIMA":
     st.title("📈 ARIMA Model Analysis")
     st.write("This page demonstrates ARIMA model analysis with various steps.")
 
@@ -440,7 +444,7 @@ elif page == "Page 8: ARIMA":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Page 9: SARIMA":
+elif page == "SARIMA":
     st.title("📈 SARIMA Model Analysis")
     st.write("This page demonstrates SARIMA model analysis with various steps.")
 
@@ -504,9 +508,11 @@ elif page == "Page 9: SARIMA":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Page 10: Machine Learning Models":
+elif page == "Machine Learning Models":
     st.title("🤖 Machine Learning Models")
-    st.write("Feature Engineering:\n\n Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nLag_1, Lag_2, Lag_3: Uses past catches to predict future ones.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
+    st.write(
+        "Feature Engineering:\n\n Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
+    # \n\nLag_1, Lag_2, Lag_3: Uses past catches to predict future ones.
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
@@ -553,8 +559,8 @@ elif page == "Page 10: Machine Learning Models":
 
             df_grouped_reset = df_grouped.reset_index()
             prophet_data = df_grouped_reset[['Date', 'New_Catches']].rename(columns={'Date': 'ds', 'New_Catches': 'y'})
-            st.write("prophet data head")
-            st.write(prophet_data.head())
+            #st.write("prophet data head")
+            #st.write(prophet_data.head())
             m = Prophet()
             m.fit(prophet_data)
             st.session_state['m'] = m
@@ -563,24 +569,26 @@ elif page == "Page 10: Machine Learning Models":
             st.session_state['prophet_data'] = prophet_data
 
         # Button 3: Show Future Dates
-        if st.button("Show Future Dates"):
+        # Button 4: Show Future Forecast
+
+        # Button 5: Show MAE
+        if st.button("Show MAE"):
+            #Show Future Dates
             m = st.session_state['m']
 
             future = m.make_future_dataframe(periods=10)
-            st.write(future)
+            #st.write(future)
 
-        # Button 4: Show Future Forecast
-        if st.button("Show Future"):
+            #Show Future
             m = st.session_state['m']
 
             future = m.make_future_dataframe(periods=10)
             forecast = m.predict(future)
 
-            st.write(forecast[['ds', 'yhat']])
+            #st.write(forecast[['ds', 'yhat']])
             st.session_state['forecast'] = forecast
 
-        # Button 5: Show MAE
-        if st.button("Show MAE"):
+            #SHow MAE
             prophet_data = st.session_state['prophet_data']
             forecast = st.session_state['forecast']
 
@@ -595,7 +603,7 @@ elif page == "Page 10: Machine Learning Models":
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
 
-elif page == "Page 11: Model Comparison":
+elif page == "Model Comparison":
     st.title("📊 Model Comparison")
 
     # Button: Model Comparison - MAE Values
@@ -628,7 +636,7 @@ elif page == "Page 11: Model Comparison":
         except NameError as e:
             st.error(f"Error: {str(e)}. Please ensure all MAE values are calculated before comparing models.")
 
-elif page == "Page 12: Forecasting with the Best Model":
+elif page == "Forecasting with the Best Model":
     st.title("🤖 Forecasting with the Best Model")
 
     if "df_grouped" in st.session_state:
