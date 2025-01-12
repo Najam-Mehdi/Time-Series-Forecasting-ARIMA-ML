@@ -552,6 +552,7 @@ elif page == "Machine Learning Models":
             st.session_state['rf_mae'] = rf_mae
 
             st.write(f"Random Forest Mean Absolute Error: {rf_mae}")
+            st.info("Random Forest\n\nPROS\n\nHandles a variety of data types, robust to outliers. Can detect complex seasonality and handles exogenous regressors well as features.\n\nCONS\n\nCan be slow to train on large datasets, may overfit if not tuned properly. Cannot predict above max or below min.")
 
         # Button 2: FIT Data
         if st.button("FIT Data"):
@@ -598,10 +599,11 @@ elif page == "Machine Learning Models":
             st.session_state['prop_mae'] = prop_mae
 
             st.write(f"Prophet Model Mean Absolute Error: {prop_mae}")
+            st.info("PROPHET\n\nPROS\n\nEasy to use, handles outliers well, good for daily data with seasonal patterns.\n\nCONS\n\nLess effective for non-daily data or data without strong seasonality. Has received a lot of scrutiny following the Zillow collapse.")
+
 
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
-
 
 elif page == "Model Comparison":
     st.title("📊 Model Comparison")
