@@ -21,6 +21,7 @@ import urllib.request
 import ssl
 warnings.filterwarnings("ignore")
 
+
 # Page configuration
 st.set_page_config(
     page_title="BI Streamlit App",
@@ -31,10 +32,10 @@ st.set_page_config(
 
 # Sidebar for page navigation
 st.sidebar.title("Navigation")
+#page = st.sidebar.radio("Go to", ["Home", "Data Load & Review", "Data Preprocessing", "Descriptive Statistics", "Statistical Analysis of Variables", "Data Visualization", "Fixed Partitioning & Standardization", "Statistical Forecast Methods", "ARIMA", "SARIMA", "Machine Learning Models", "Model Comparison", "Forecasting with the Best Model"])
 page = st.sidebar.radio("Go to", [
     "🏠 Home",
-    "📊 Data Load & Review",
-    "🔧 Data Preprocessing",
+    "📊 Data Load Review Merge",
     "📈 Descriptive Statistics",
     "📉 Statistical Analysis of Variables",
     "📊 Data Visualization",
@@ -42,6 +43,7 @@ page = st.sidebar.radio("Go to", [
     "🔮 Statistical Forecast Methods",
     "📉 ARIMA",
     "📈 SARIMA",
+    "✨ Feature Engineering",
     "🤖 Machine Learning Models",
     "🔍 Model Comparison",
     "📅 Forecasting with the Best Model"
@@ -51,7 +53,7 @@ page = st.sidebar.radio("Go to", [
 if page == "🏠 Home":
     st.title("📚  Insects Analysis and Prediction Using Weather Data  - Streamlit App!\n\n Welcome to the Information Systems & Business Intelligence")
     st.write("\n"
-             "    SYED NAJAM MEHDI - D03000017\n\nPUJAN THAPA - D030000\n\nRAZA MEHAR - D030000\n"
+             "    SYED NAJAM MEHDI - D03000017\n\nPUJAN THAPA - D03000056\n\nRAZA MEHAR - D03000023\n"
              "    ")
     st.image(
         "https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-lighttext.png",
@@ -60,8 +62,8 @@ if page == "🏠 Home":
     )
 
 # Page 1: Buttons
-elif page == "📊 Data Load & Review":
-    st.title("🎯 Data Load & Review")
+elif page == "📊 Data Load Review Merge":
+    st.title("🎯 Data Load Review Merge")
     st.write("This page loads and reviews the initial data.")
 
     # Button examples
@@ -87,20 +89,17 @@ elif page == "📊 Data Load & Review":
     # Review Data Button
     if "df_ins" in st.session_state and "df_temp" in st.session_state:
         if st.button("Review Data"):
+            df_ins = st.session_state['df_ins']
+            df_temp = st.session_state['df_temp']
             st.write("Insects Data Sample:")
             st.write(st.session_state['df_ins'].sample(5))
+            st.write(f"Shape of Insects DataFrame: {df_ins.shape}")
             st.write("Temperature Data Sample:")
             st.write(st.session_state['df_temp'].sample(5))
-    else:
-        st.warning("Please load the data first.")
+            st.write(f"Shape of Temperature DataFrame: {df_temp.shape}")
 
-# Page 2: Info
-elif page == "🔧 Data Preprocessing":
-    st.title("💡 Data Preprocessing")
-    st.write("This page performs preprocessing.")
-
-    if "df_ins" in st.session_state and "df_temp" in st.session_state:
-        if st.button("Preprocess Data"):
+        if st.button("Merge Datasets"):
+            st.success("Both Datasets Merged on Date Time Values")
             df_ins = st.session_state['df_ins']
             df_temp = st.session_state['df_temp']
 
@@ -118,9 +117,9 @@ elif page == "🔧 Data Preprocessing":
 
             df_merged = pd.merge(df_ins, df_temp, on='Date', how='left')
             st.session_state['df_merged'] = df_merged
-            st.write("Data Review:")
-            st.write(data_review(df_merged))  # Display the output of data_review
-            st.write("Data Preprocessed Successfully.")
+
+            #st.write("Data Review:")
+            #st.write(data_review(df_merged))  # Display the output of data_review
 
             df_grouped = df_merged.groupby('Date').agg({
                 'Number_of_Insects': 'sum',
@@ -131,9 +130,49 @@ elif page == "🔧 Data Preprocessing":
                 'Mean_Humidity': 'mean'
             }).reset_index()
             st.session_state['df_grouped'] = df_grouped
-            st.success("Both Datasets Merged on Date Time Values")
     else:
-        st.warning("Please load the data first on the Data Load & Review page.")
+        st.warning("Please load the data first.")
+
+# Page 2: Info
+# elif page == "💡 Data Merge":
+#     st.title("💡 Merge Datasets")
+#     #st.write("This page performs preprocessing.")
+#
+#     if "df_ins" in st.session_state and "df_temp" in st.session_state:
+#         if st.button("Merge Datasets"):
+#             st.success("Both Datasets Merged on Date Time Values")
+#             df_ins = st.session_state['df_ins']
+#             df_temp = st.session_state['df_temp']
+#
+#             df_ins.dropna(inplace=True)
+#             df_ins.drop_duplicates(inplace=True)
+#             df_ins['Date'] = pd.to_datetime(df_ins['Date'], format='mixed', dayfirst=True)
+#
+#             df_temp.dropna(inplace=True)
+#             df_temp.drop_duplicates(inplace=True)
+#             df_temp['Mean_Temperature'] = df_temp['Mean_Temperature'].str.replace(',', '.').astype(float)
+#             df_temp['Temperature_High'] = df_temp['Temperature_High'].str.replace(',', '.').astype(float)
+#             df_temp['Temperature_Low'] = df_temp['Temperature_Low'].str.replace(',', '.').astype(float)
+#             df_temp['Mean_Humidity'] = df_temp['Mean_Humidity'].str.replace(',', '.').astype(float)
+#             df_temp['Date'] = pd.to_datetime(df_temp['Date'], format='mixed', dayfirst=True)
+#
+#             df_merged = pd.merge(df_ins, df_temp, on='Date', how='inner')
+#             st.session_state['df_merged'] = df_merged
+#
+#             st.write("Data Review:")
+#             st.write(data_review(df_merged))  # Display the output of data_review
+#
+#             df_grouped = df_merged.groupby('Date').agg({
+#                 'Number_of_Insects': 'sum',
+#                 'New_Catches': 'sum',
+#                 'Mean_Temperature': 'mean',
+#                 'Temperature_High': 'mean',
+#                 'Temperature_Low': 'mean',
+#                 'Mean_Humidity': 'mean'
+#             }).reset_index()
+#             st.session_state['df_grouped'] = df_grouped
+#     else:
+#         st.warning("Please load the data first on the Data Load & Review page.")
 
 elif page == "📈 Descriptive Statistics":
     st.title("Descriptive Statistics")
@@ -254,7 +293,7 @@ elif page == "📉 Statistical Analysis of Variables":
 
 elif page == "📊 Data Visualization":
     st.title("Data Visualization")
-    st.write("Components of the Time-Series")
+    #st.write("Components of the Time-Series")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
@@ -269,8 +308,9 @@ elif page == "📊 Data Visualization":
             st.pyplot(fig)
             st.success("Observation: The data shows seasonality with peaks and troughs at regular intervals, along with a potential upward trend towards the end of the period. We will decompose the series into individual components to verify that.")
 
-        if st.button("New Catches"):
+        if st.button("Decomposition of Time Series"):
             result = seasonal_decompose(df_grouped['New_Catches'], model='additive', period=12)  # Adjust 'period' based on your data frequency
+            #st.set_option('deprecation.showPyplotGlobalUse', False)
             result.plot()
             plt.tight_layout()
             st.pyplot()
@@ -311,6 +351,7 @@ elif page == "⚙️ Fixed Partitioning & Standardization":
             ax[1].legend()
 
             st.pyplot(fig)
+            st.success("Normalising the data using Standard Scaler to make comparable")
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
@@ -369,6 +410,7 @@ elif page == "🔮 Statistical Forecast Methods":
             moving_avg = df_grouped['New_Catches'].rolling(window=window_size).mean()
             moving_avg = moving_avg.iloc[n_train_samples:]
 
+            st.write("Window size of 3 was used for the moving average.")
             # Compute MAE
             ma_mae = mean_absolute_error(X_val['New_Catches'], moving_avg)
             st.write(f"Mean Absolute Error for Moving Average Forecast: {ma_mae}")
@@ -391,13 +433,13 @@ elif page == "🔮 Statistical Forecast Methods":
             diff_moving_avg = diff_series.rolling(window=window_size).mean()
 
             # Display null value count before filling
-            st.write(f"Null values after creating the moving average: {diff_moving_avg.isnull().sum()}")
+            #st.write(f"Null values after creating the moving average: {diff_moving_avg.isnull().sum()}")
 
             # Backfill null values
             diff_moving_avg = diff_moving_avg.bfill()
 
             # Display null value count after filling
-            st.write(f"Null values after backfilling: {diff_moving_avg.isnull().sum()}")
+            #st.write(f"Null values after backfilling: {diff_moving_avg.isnull().sum()}")
 
             # Compute MAE
             ma_mae_diff = mean_absolute_error(X_val['New_Catches'], diff_moving_avg)
@@ -477,7 +519,7 @@ elif page == "📉 ARIMA":
 
 elif page == "📈 SARIMA":
     st.title("📈 SARIMA Model Analysis")
-    st.write("This page demonstrates SARIMA model analysis with various steps.")
+    #st.write("This page demonstrates SARIMA model analysis with various steps.")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
@@ -498,11 +540,11 @@ elif page == "📈 SARIMA":
 
             #st.write(sarima_model.summary())
             st.write("Best model:  ARIMA(1,0,2)(0,0,0)[7]")
-            st.success("SARIMA Model has been fitted successfully.")
+            #st.success("SARIMA Model has been fitted successfully.")
             st.success("SARIMA (Seasonal Auto-Regressive Integrated Moving Average) is an extension of the ARIMA model that incorporates seasonality in addition to the non-seasonal components.")
 
         # Show Plot and MAE Button
-        if st.button("Show Plot and MAE"):
+        #if st.button("Show Plot and MAE"):
             # Ensure the model is in session state before proceeding
             if 'sarima_model' in st.session_state:
                 sarima_model = st.session_state['sarima_model']
@@ -541,14 +583,20 @@ elif page == "📈 SARIMA":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
+elif page == "✨ Feature Engineering":
+    st.title(" ✨ Feature Engineering")
+    if st.button("Perform Feature Engineering"):
+        st.write("Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
+
+
 elif page == "🤖 Machine Learning Models":
     st.title("🤖 Machine Learning Models")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
 
-        if st.button("Perform Feature Engineering"):
-            st.write("Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
+        #if st.button("Perform Feature Engineering"):
+            #st.write("Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
 
         # Horizontal Radio Buttons for Selecting Model
         model_option = st.radio(
@@ -676,3 +724,4 @@ elif page == "📅 Forecasting with the Best Model":
             plt.legend()
             plt.title('SARIMA Forecast')
             st.pyplot(plt)
+
