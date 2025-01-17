@@ -31,13 +31,27 @@ st.set_page_config(
 
 # Sidebar for page navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Data Load & Review", "Data Preprocessing", "Descriptive Statistics", "Statistical Analysis of Variables", "Data Visualization", "Fixed Partitioning", "Statistical Forecast Methods", "ARIMA", "SARIMA", "Machine Learning Models", "Model Comparison", "Forecasting with the Best Model"])
+page = st.sidebar.radio("Go to", [
+    "🏠 Home",
+    "📊 Data Load & Review",
+    "🔧 Data Preprocessing",
+    "📈 Descriptive Statistics",
+    "📉 Statistical Analysis of Variables",
+    "📊 Data Visualization",
+    "⚙️ Fixed Partitioning & Standardization",
+    "🔮 Statistical Forecast Methods",
+    "📉 ARIMA",
+    "📈 SARIMA",
+    "🤖 Machine Learning Models",
+    "🔍 Model Comparison",
+    "📅 Forecasting with the Best Model"
+])
 
 # Home Page
-if page == "Home":
-    st.title("📚 Welcome to the Information Systems & Business Intelligence - Streamlit App!")
+if page == "🏠 Home":
+    st.title("📚  Insects Analysis and Prediction Using Weather Data  - Streamlit App!\n\n Welcome to the Information Systems & Business Intelligence")
     st.write("\n"
-             "    Insects Catching Prediction By Analysing Temperature and Humidity.\n"
+             "    SYED NAJAM MEHDI - D03000017\n\nPUJAN THAPA - D030000\n\nRAZA MEHAR - D030000\n"
              "    ")
     st.image(
         "https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-lighttext.png",
@@ -46,7 +60,7 @@ if page == "Home":
     )
 
 # Page 1: Buttons
-elif page == "Data Load & Review":
+elif page == "📊 Data Load & Review":
     st.title("🎯 Data Load & Review")
     st.write("This page loads and reviews the initial data.")
 
@@ -81,7 +95,7 @@ elif page == "Data Load & Review":
         st.warning("Please load the data first.")
 
 # Page 2: Info
-elif page == "Data Preprocessing":
+elif page == "🔧 Data Preprocessing":
     st.title("💡 Data Preprocessing")
     st.write("This page performs preprocessing.")
 
@@ -117,18 +131,20 @@ elif page == "Data Preprocessing":
                 'Mean_Humidity': 'mean'
             }).reset_index()
             st.session_state['df_grouped'] = df_grouped
+            st.success("Both Datasets Merged on Date Time Values")
     else:
         st.warning("Please load the data first on the Data Load & Review page.")
 
-elif page == "Descriptive Statistics":
+elif page == "📈 Descriptive Statistics":
     st.title("Descriptive Statistics")
     if "df_grouped" in st.session_state:
         if st.button("Describe Data"):
             st.write(st.session_state['df_grouped'].describe())
+            st.success("As can be seen Features have values which are not comparable, Hence Standardisation will be required. ")
     else:
         st.warning("Please preprocess the data first.")
 
-elif page == "Statistical Analysis of Variables":
+elif page == "📉 Statistical Analysis of Variables":
     st.title("Statistical Analysis of Variables")
 
     if "df_grouped" in st.session_state:
@@ -139,7 +155,7 @@ elif page == "Statistical Analysis of Variables":
             "Correlation Analysis": False,
             "ANOVA Test - Temperature": False,
             "ANOVA Test - Humidity": False,
-            "Box Plot": False
+            "Outliers Detection": False
         }
 
         for key in analysis_buttons.keys():
@@ -199,11 +215,12 @@ elif page == "Statistical Analysis of Variables":
             groups = [group['New_Catches'].values for _, group in df_grouped.groupby('Temperature_Bin')]
             f_stat, p_value = f_oneway(*groups)
 
+            st.info("ANOVA, which stands for Analysis of Variance, is a statistical test used to analyze the difference between the means of more than two groups. A one-way ANOVA uses one independent variable, while a two-way ANOVA uses two independent variables.")
             st.write(f"F-statistic: {f_stat}")
             st.write(f"P-value: {p_value}")
             df_grouped.drop(columns='Temperature_Bin', inplace=True)
-            st.write("Data After Dropping 'Temperature_Bin':")
-            st.write(df_grouped)  # Display the table to ensure visibility
+            #st.write("Data After Dropping 'Temperature_Bin':")
+            #st.write(df_grouped)  # Display the table to ensure visibility
             st.success("Observation: The results suggest that Mean_Temperature (grouped into Low, Medium, High) does not significantly impact New_Catches.")
 
         if analysis_buttons["ANOVA Test - Humidity"]:
@@ -218,11 +235,11 @@ elif page == "Statistical Analysis of Variables":
             st.write(f"F-statistic: {f_stat}")
             st.write(f"P-value: {p_value}")
             df_grouped.drop(columns=['Humidity_Bin'], inplace=True)
-            st.write("Data After Dropping 'Humidity_Bin':")
-            st.write(df_grouped)  # Display the table to ensure visibility
+            #st.write("Data After Dropping 'Humidity_Bin':")
+            #st.write(df_grouped)  # Display the table to ensure visibility
             st.success("Observation: The results suggest that Mean_Humidity (grouped into Low, Medium, High) significantly impacts New_Catches, as indicated by the p-value of 0.0084, which is below the 0.05 significance threshold. This suggests that there is a meaningful difference in the mean number of New_Catches between the different humidity categories.")
 
-        if analysis_buttons["Box Plot"]:
+        if analysis_buttons["Outliers Detection"]:
             features = ['Number_of_Insects', 'New_Catches', 'Mean_Temperature', 'Mean_Humidity']
 
             fig, axes = plt.subplots(2, 2, figsize=(12, 8))
@@ -235,14 +252,14 @@ elif page == "Statistical Analysis of Variables":
     else:
         st.warning("Please preprocess the data first.")
 
-elif page == "Data Visualization":
+elif page == "📊 Data Visualization":
     st.title("Data Visualization")
     st.write("Components of the Time-Series")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
 
-        if st.button("Components of New Catches"):
+        if st.button("Components of Time Series"):
             # Plot for Components of New Catches
             fig, ax = plt.subplots(figsize=(10, 6))
             ax.plot(df_grouped['Date'], df_grouped['New_Catches'], label='New Catches')
@@ -262,14 +279,14 @@ elif page == "Data Visualization":
         st.warning("Please preprocess the data first.")
 
 
-elif page == "Fixed Partitioning":
-    st.title("📊 Fixed Partitioning")
+elif page == "⚙️ Fixed Partitioning & Standardization":
+    st.title("📊 Fixed Partitioning & Standardization")
     st.write("This page demonstrates fixed partitioning of the data into training and validation datasets.")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
 
-        if st.button("Do Partition"):
+        if st.button("Perform Partition"):
             # Perform fixed partitioning
             n_train_samples = 40
             X_train = df_grouped.iloc[0:n_train_samples]
@@ -297,8 +314,15 @@ elif page == "Fixed Partitioning":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Statistical Forecast Methods":
+elif page == "🔮 Statistical Forecast Methods":
     st.title("📈 Statistical Forecast Methods")
+
+    # Define a function for plotting series
+    def plot_series(series1, series2, label, title):
+        plt.plot(series1, label=f"{label} Actual")
+        plt.plot(series2, label=f"{label} Predicted")
+        plt.title(title)
+        plt.legend()
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
@@ -311,8 +335,14 @@ elif page == "Statistical Forecast Methods":
         if "nf_mae" not in st.session_state:
             st.session_state["nf_mae"] = mean_absolute_error(X_val['New_Catches'], st.session_state["naive_forecast"])
 
-        # Naive Forecast
-        if st.button("Show Naive Forecast"):
+        # Display horizontal radio buttons
+        forecast_option = st.radio(
+            "Select a Forecasting Method:",
+            ("Naive Forecast", "Moving Average Forecast", "Differenced Moving Average Forecast"),
+            horizontal=True
+        )
+
+        if forecast_option == "Naive Forecast":
             naive_forecast = st.session_state["naive_forecast"]
             nf_mae = st.session_state["nf_mae"]
 
@@ -331,8 +361,7 @@ elif page == "Statistical Forecast Methods":
 
             st.success("Observation: It is clear that the predicted values are shifted by one time-step ahead of the actual values.")
 
-        # Moving Average Forecast
-        if st.button("Show Moving Average Forecast"):
+        elif forecast_option == "Moving Average Forecast":
             st.write(
                 "Moving Average Forecast: A forecasting technique that predicts future values by averaging a fixed number of past observations to smooth out short-term fluctuations and highlight longer-term trends.")
 
@@ -351,8 +380,7 @@ elif page == "Statistical Forecast Methods":
             plot_series(moving_avg.iloc[0:10], moving_avg.iloc[0:10], label='Predictions', title='Moving Average Forecast')
             st.pyplot(fig)
 
-        # Differenced Moving Average Forecast
-        if st.button("Show Differenced Moving Average Forecast"):
+        elif forecast_option == "Differenced Moving Average Forecast":
             st.write(
                 "Differenced Moving Average Forecast: A time series transformation technique that subtracts the current observation from a previous one to achieve stationarity by removing trends and seasonality.")
 
@@ -387,29 +415,31 @@ elif page == "Statistical Forecast Methods":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "ARIMA":
+
+elif page == "📉 ARIMA":
     st.title("📈 ARIMA Model Analysis")
-    st.write("This page demonstrates ARIMA model analysis with various steps.")
+    st.write("ARIMA is an acronym for “autoregressive integrated moving average.” It's a model used in statistics and econometrics to measure events that happen over a period of time. The model is used to understand past data or predict future data in a series.")
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
 
         # Button 1: Show Head
-        if st.button("Show Head"):
-            st.write(df_grouped.head())
+        #if st.button("Show Head"):
+        #    st.write(df_grouped.head())
 
         # Button 2: Show ADF Stats & P-Value
-        if st.button("Show ADF Stats & P-Value"):
+        if st.button("Perform Augmented Dickey-Fuller"):
             df_grouped['Date'] = pd.to_datetime(df_grouped['Date'])
             df_grouped.set_index('Date', inplace=True)
             result = adfuller(df_grouped['New_Catches'].dropna())
+            st.write("The ADF (Augmented Dickey-Fuller) test is used to see if a time series is stationary.")
             st.write(f"ADF Statistic: {result[0]}")
             st.write(f"p-value: {result[1]}")
 
             st.success("Observation: The p-value is greater than 0.05 (0.6579), the time series is non-stationary.")
-
+            st.success("We will make the time series stationary by applying differencing")
         # Button 3: Show Improved ADF Stats & P-Value
-        if st.button("Show Improved ADF Stats & P-Value"):
+        if st.button("Perform ADF Again"):
             df_grouped['New_Catches_diff'] = df_grouped['New_Catches'] - df_grouped['New_Catches'].shift(1)
             df_grouped['New_Catches_diff'].dropna(inplace=True)
             result = adfuller(df_grouped['New_Catches_diff'].dropna())
@@ -420,8 +450,9 @@ elif page == "ARIMA":
             st.success("We will use auto-Arima to get the best values for p, d, and q. p is about using previous data to predict the next value. d is about making the data more stable by removing trends. q is about correcting the predictions based on past mistakes.")
 
         # Button 4: Run ARIMA Model
-        if st.button("Run ARIMA Model"):
+        if st.button("Auto ARIMA"):
             model = auto_arima(df_grouped['New_Catches'].dropna(), seasonal=False, stepwise=True, trace=True)
+            st.write("Best model: ARIMA(1, 0, 2)(0, 0, 0)[0]")
             model = ARIMA(df_grouped['New_Catches'], order=(1, 0, 2))
             fitted_model = model.fit()
 
@@ -438,13 +469,13 @@ elif page == "ARIMA":
 
             arima_mae = mean_absolute_error(df_grouped['New_Catches'], predictions)
             st.write(f"Mean Absolute Error for ARIMA: {arima_mae}")
-
+            st.write("In-sample forecast is the process of formally evaluating the predictive capabilities of the models developed using observed data to see how effective the algorithms are in reproducing data.")
             st.session_state['arima_mae'] = arima_mae
 
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "SARIMA":
+elif page == "📈 SARIMA":
     st.title("📈 SARIMA Model Analysis")
     st.write("This page demonstrates SARIMA model analysis with various steps.")
 
@@ -465,8 +496,10 @@ elif page == "SARIMA":
             # Store the SARIMA model in session state
             st.session_state['sarima_model'] = sarima_model
 
-            st.write(sarima_model.summary())
+            #st.write(sarima_model.summary())
+            st.write("Best model:  ARIMA(1,0,2)(0,0,0)[7]")
             st.success("SARIMA Model has been fitted successfully.")
+            st.success("SARIMA (Seasonal Auto-Regressive Integrated Moving Average) is an extension of the ARIMA model that incorporates seasonality in addition to the non-seasonal components.")
 
         # Show Plot and MAE Button
         if st.button("Show Plot and MAE"):
@@ -508,19 +541,24 @@ elif page == "SARIMA":
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Machine Learning Models":
+elif page == "🤖 Machine Learning Models":
     st.title("🤖 Machine Learning Models")
-    st.write(
-        "Feature Engineering:\n\n Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
-    # \n\nLag_1, Lag_2, Lag_3: Uses past catches to predict future ones.
 
     if "df_grouped" in st.session_state:
         df_grouped = st.session_state['df_grouped']
 
-        # Button 1: Do Machine Learning
-        if st.button("Do Machine Learning"):
-            df_grouped = st.session_state['df_grouped']
+        if st.button("Perform Feature Engineering"):
+            st.write("Day of the Year: Identifies yearly patterns.\n\nDay of the Week: Captures weekly trends.\n\nWeek of the Year: Tracks seasonal changes by week.\n\nRolling Mean_7: Smooths data to highlight long-term trends.\n\nTemp_Humidity_Interaction: Shows how temperature and humidity together affect catches.")
 
+        # Horizontal Radio Buttons for Selecting Model
+        model_option = st.radio(
+            "Select a Machine Learning Model:",
+            ("None", "Random Forest", "Prophet"),
+            index=0,
+            horizontal=True
+        )
+
+        if model_option == "Random Forest":
             # Feature Engineering
             df_grouped['Day_of_Week'] = df_grouped.index.dayofweek
             df_grouped['Week_of_Year'] = df_grouped.index.isocalendar().week
@@ -554,45 +592,21 @@ elif page == "Machine Learning Models":
             st.write(f"Random Forest Mean Absolute Error: {rf_mae}")
             st.info("Random Forest\n\nPROS\n\nHandles a variety of data types, robust to outliers. Can detect complex seasonality and handles exogenous regressors well as features.\n\nCONS\n\nCan be slow to train on large datasets, may overfit if not tuned properly. Cannot predict above max or below min.")
 
-        # Button 2: FIT Data
-        if st.button("FIT Data"):
-            from prophet import Prophet
-
+        elif model_option == "Prophet":
             df_grouped_reset = df_grouped.reset_index()
             prophet_data = df_grouped_reset[['Date', 'New_Catches']].rename(columns={'Date': 'ds', 'New_Catches': 'y'})
-            #st.write("prophet data head")
-            #st.write(prophet_data.head())
+
             m = Prophet()
             m.fit(prophet_data)
             st.session_state['m'] = m
-            st.success("Prophet model fitted successfully.")
-
             st.session_state['prophet_data'] = prophet_data
 
-        # Button 3: Show Future Dates
-        # Button 4: Show Future Forecast
-
-        # Button 5: Show MAE
-        if st.button("Show MAE"):
-            #Show Future Dates
-            m = st.session_state['m']
-
-            future = m.make_future_dataframe(periods=10)
-            #st.write(future)
-
-            #Show Future
-            m = st.session_state['m']
-
+            # Predict Future Dates and Forecast
             future = m.make_future_dataframe(periods=10)
             forecast = m.predict(future)
-
-            #st.write(forecast[['ds', 'yhat']])
             st.session_state['forecast'] = forecast
 
-            #SHow MAE
-            prophet_data = st.session_state['prophet_data']
-            forecast = st.session_state['forecast']
-
+            # Calculate MAE
             merged_data = pd.merge(prophet_data, forecast[['ds', 'yhat']], on='ds', how='left')
             prop_mae = mean_absolute_error(merged_data['y'], merged_data['yhat'])
 
@@ -601,11 +615,11 @@ elif page == "Machine Learning Models":
             st.write(f"Prophet Model Mean Absolute Error: {prop_mae}")
             st.info("PROPHET\n\nPROS\n\nEasy to use, handles outliers well, good for daily data with seasonal patterns.\n\nCONS\n\nLess effective for non-daily data or data without strong seasonality. Has received a lot of scrutiny following the Zillow collapse.")
 
-
     else:
         st.warning("Please preprocess the data first on the Data Preprocessing page.")
 
-elif page == "Model Comparison":
+
+elif page == "🔍 Model Comparison":
     st.title("📊 Model Comparison")
 
     # Button: Model Comparison - MAE Values
@@ -638,7 +652,7 @@ elif page == "Model Comparison":
         except NameError as e:
             st.error(f"Error: {str(e)}. Please ensure all MAE values are calculated before comparing models.")
 
-elif page == "Forecasting with the Best Model":
+elif page == "📅 Forecasting with the Best Model":
     st.title("🤖 Forecasting with the Best Model")
 
     if "df_grouped" in st.session_state:
@@ -662,5 +676,3 @@ elif page == "Forecasting with the Best Model":
             plt.legend()
             plt.title('SARIMA Forecast')
             st.pyplot(plt)
-
-
